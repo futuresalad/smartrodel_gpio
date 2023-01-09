@@ -90,7 +90,7 @@ async def start_measurement(duration):
         print("not successful")
 
 
-GPIO.add_event_detect(btn_pin, GPIO.FALLING, callback=btn_callback, bouncetime=2000)
+GPIO.add_event_detect(btn_pin, GPIO.FALLING, callback=asyncio.run(start_measurement(5)), bouncetime=2000)
 
 
 if __name__ == "__main__":
