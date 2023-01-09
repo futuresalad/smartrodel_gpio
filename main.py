@@ -1,7 +1,6 @@
 from gpiozero import LED, Button
-from ble_gpio import start_measurement
+from ble_gpio import BLE
 from time import sleep
-import asyncio
 import asyncio
 
 # LED Output pin
@@ -13,8 +12,10 @@ led_on = False
 # Button
 btn = Button(25, pull_up=True)
 
+ble = BLE()
+
 def btn_callback():
-    asyncio.run(start_measurement(5))
+    asyncio.run(ble.start_measurement(5))
 
 btn.when_pressed = btn_callback
 
