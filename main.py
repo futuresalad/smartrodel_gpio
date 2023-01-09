@@ -70,7 +70,9 @@ async def start_measurement(duration):
                     await client.write_gatt_char(TX_UUID, txOn)
                     sleep(duration)
                     await client.write_gatt_char(TX_UUID, txOff)
+                    client.disconnect()
                     success = True
+                    
             else:
                 print(f'BT Device with MAC {mac} not found')    
 
