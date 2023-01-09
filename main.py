@@ -25,7 +25,7 @@ def callback(ev=None):
     led_on = not led_on
     GPIO.output(led_pin)
 
-GPIO.add_event_detect(23, GPIO.RISING, callback=callback, bouncetime=300)
+GPIO.add_event_detect(btn_pin, GPIO.RISING, callback=callback, bouncetime=300)
 
 while True:
     sleep(1)
