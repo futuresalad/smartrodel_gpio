@@ -37,7 +37,7 @@ def callback(ev=None):
 
 
 async def start_measurement():
-            success = await ESP32_1.get_data(2)
+            success = await ESP32_1.get_data(30)
 
             if success:
                 ESP32_1.export_data()
