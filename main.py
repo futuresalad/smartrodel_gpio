@@ -23,7 +23,7 @@ for i in range(5):
 def callback(ev=None):
     global led_on
     led_on = not led_on
-    GPIO.output(led_pin)
+    GPIO.output(led_pin, GPIO.HIGH if led_on else GPIO.LOW)
 
 GPIO.add_event_detect(btn_pin, GPIO.RISING, callback=callback, bouncetime=300)
 
