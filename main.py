@@ -58,11 +58,10 @@ async def start_measurement():
                     GPIO.output(led_pin, GPIO.LOW)
                     sleep(1)
 
+ESP32_1 = bt_daq(mac)
+GPIO.add_event_detect(btn_pin, GPIO.RISING, callback=callback, bouncetime=300)
 
 if __name__ == "__main__":
-
-    ESP32_1 = bt_daq(mac)
-    GPIO.add_event_detect(btn_pin, GPIO.RISING, callback=callback, bouncetime=300)
 
     while True:
         sleep(5)

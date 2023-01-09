@@ -74,13 +74,3 @@ class bt_daq():
     def export_data(self):
         print("Exporting CSV")
         self.dataframe.to_csv(path_or_buf=f"./data_export/data_{datetime.datetime.now().isoformat()}.csv", sep=',', index_label="Index", na_rep='NaN')
-
-
-async def main():
-            success = await ESP32_1.get_data(2)
-            if success:
-                ESP32_1.export_data()
-
-            else:
-                print("not successful")
-    
