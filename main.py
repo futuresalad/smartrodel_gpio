@@ -15,7 +15,7 @@ btn = Button(25, pull_up=True)
 ble = BLE()
 
 def btn_callback():
-    asyncio.run(ble.start_measurement(5))
+    asyncio.run(ble.start_measurement(60))
 
 btn.when_pressed = btn_callback
 

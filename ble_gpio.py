@@ -59,7 +59,6 @@ class BLE():
                         await client.disconnect()
                         self.success = True
                         
-                        
                 else:
                     print(f'BT Device with MAC {self.mac} not found')    
 
