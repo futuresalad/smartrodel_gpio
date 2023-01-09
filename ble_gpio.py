@@ -1,4 +1,5 @@
 from time import sleep
+from gpiozero import LED
 import asyncio
 from bleak import BleakClient
 import pandas as pd
@@ -25,10 +26,13 @@ class BLE():
         self.rec = np.zeros([1,5])
         self.dataframe = pd.DataFrame(self.rec, columns=['time', 'vl', 'vr', 'hl', 'hr'])
 
+        self.led_r = LED(25)
+        self.led_g = LED(24)
+
     def bt_callback(self, sender: int, data: bytearray):
         # Decode data from bytearrays to strings and split them at the "," delimiter
         self.rec = data.decode("utf-8").split(",")
-        print(self.rec)
+        #print(self.rec)
         # Convert every element of the row into an integer
         for idx, element in enumerate(self.rec):
             self.rec[idx] = int(element)
@@ -54,17 +58,23 @@ class BLE():
                         await client.start_notify(self.RX_UUID, self.bt_callback)
                         await client.write_gatt_char(self.TX_UUID, bytearray(str(duration),'utf-8'))
                         await client.write_gatt_char(self.TX_UUID, self.txOn)
+                        self.led_r.off()  
+                        self.led_g.on()
                         sleep(duration)
+                        self.led_g.off()
                         await client.write_gatt_char(self.TX_UUID, self.txOff)
                         await client.disconnect()
                         self.success = True
                         
                 else:
-                    print(f'BT Device with MAC {self.mac} not found')    
+                    print(f'BT Device with MAC {self.mac} not found')  
+                    self.led_g.off()
+                    self.led_r.on()  
 
         except Exception as e:
 
             print(e)
+            self.led_r.on()  
             self.success = False
                     
         if self.success:
