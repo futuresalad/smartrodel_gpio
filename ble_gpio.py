@@ -25,53 +25,53 @@ class BLE():
         self.rec = np.zeros([1,5])
         self.dataframe = pd.DataFrame(self.rec, columns=['time', 'vl', 'vr', 'hl', 'hr'])
 
-def bt_callback(self, sender: int, data: bytearray):
-    # Decode data from bytearrays to strings and split them at the "," delimiter
-    self.rec = data.decode("utf-8").split(",")
-    print(self.rec)
-    # Convert every element of the row into an integer
-    for idx, element in enumerate(self.rec):
-        self.rec[idx] = int(element)
+    def bt_callback(self, sender: int, data: bytearray):
+        # Decode data from bytearrays to strings and split them at the "," delimiter
+        self.rec = data.decode("utf-8").split(",")
+        print(self.rec)
+        # Convert every element of the row into an integer
+        for idx, element in enumerate(self.rec):
+            self.rec[idx] = int(element)
 
-    # Add that array as a row to the dataframe
-    self.dataframe.loc[len(self.dataframe)] = self.rec
+        # Add that array as a row to the dataframe
+        self.dataframe.loc[len(self.dataframe)] = self.rec
 
 
-def export_data(self):
-        print("Exporting CSV")
-        self.dataframe.to_csv(path_or_buf=f"./data_export/data_{datetime.datetime.now().isoformat()}.csv", sep=',', index_label="Index", na_rep='NaN')
+    def export_data(self):
+            print("Exporting CSV")
+            self.dataframe.to_csv(path_or_buf=f"./data_export/data_{datetime.datetime.now().isoformat()}.csv", sep=',', index_label="Index", na_rep='NaN')
 
-async def start_measurement(self, duration):
+    async def start_measurement(self, duration):
 
-    self.rec = np.zeros([1,5])
-    self.dataframe = pd.DataFrame(self.rec, columns=['time', 'vl', 'vr', 'hl', 'hr'])
+        self.rec = np.zeros([1,5])
+        self.dataframe = pd.DataFrame(self.rec, columns=['time', 'vl', 'vr', 'hl', 'hr'])
 
-    try:
-        async with BleakClient(self.mac) as client:
-                
-            if client.is_connected:
+        try:
+            async with BleakClient(self.mac) as client:
                     
-                    await client.start_notify(self.RX_UUID, bt_callback)
-                    await client.write_gatt_char(self.TX_UUID, bytearray(str(duration),'utf-8'))
-                    await client.write_gatt_char(self.TX_UUID, self.txOn)
-                    sleep(duration)
-                    await client.write_gatt_char(self.TX_UUID, self.txOff)
-                    client.disconnect()
-                    print(f"Client connected: {client.is_connected()}")
-                    self.success = True
+                if client.is_connected:
+                        
+                        await client.start_notify(self.RX_UUID, bt_callback)
+                        await client.write_gatt_char(self.TX_UUID, bytearray(str(duration),'utf-8'))
+                        await client.write_gatt_char(self.TX_UUID, self.txOn)
+                        sleep(duration)
+                        await client.write_gatt_char(self.TX_UUID, self.txOff)
+                        client.disconnect()
+                        print(f"Client connected: {client.is_connected()}")
+                        self.success = True
+                        
+                        
+                else:
+                    print(f'BT Device with MAC {self.mac} not found')    
+
+        except Exception as e:
+
+            print(e)
+            self.success = False
                     
-                    
-            else:
-                print(f'BT Device with MAC {self.mac} not found')    
+        if self.success:
+            self.export_data()
+            print("Success!")
 
-    except Exception as e:
-
-        print(e)
-        self.success = False
-                   
-    if self.success:
-        self.export_data()
-        print("Success!")
-
-    else:
-        print("not successful")
+        else:
+            print("not successful")
