@@ -65,7 +65,6 @@ class BLE():
                         sleep(duration)
                         self.led_g.off()
                         await client.write_gatt_char(self.TX_UUID, self.txOff)
-                        await client.disconnect()
                         self.success = True
                         
                 else:
