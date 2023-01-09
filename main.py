@@ -53,6 +53,9 @@ def export_data():
 
 async def start_measurement(duration):
 
+    global rec
+    global dataframe
+
     rec = np.zeros([1,5])
     dataframe = pd.DataFrame(rec, columns=['time', 'vl', 'vr', 'hl', 'hr'])
 
