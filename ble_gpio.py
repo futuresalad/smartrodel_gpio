@@ -51,7 +51,7 @@ class BLE():
                     
                 if client.is_connected:
                         
-                        await client.start_notify(self.RX_UUID, bt_callback)
+                        await client.start_notify(self.RX_UUID, self.bt_callback)
                         await client.write_gatt_char(self.TX_UUID, bytearray(str(duration),'utf-8'))
                         await client.write_gatt_char(self.TX_UUID, self.txOn)
                         sleep(duration)
