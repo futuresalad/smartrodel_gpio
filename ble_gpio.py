@@ -56,8 +56,7 @@ class BLE():
                         await client.write_gatt_char(self.TX_UUID, self.txOn)
                         sleep(duration)
                         await client.write_gatt_char(self.TX_UUID, self.txOff)
-                        client.disconnect()
-                        print(f"Client connected: {client.is_connected()}")
+                        await client.disconnect()
                         self.success = True
                         
                         
