@@ -37,9 +37,7 @@ GPIO.setup(25, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 btn_pin = 25
 
 def btn_callback(ev=None):
-
     asyncio.run(start_measurement(5))
-
 
 def bt_callback(sender: int, data: bytearray):
     # Decode data from bytearrays to strings and split them at the "," delimiter
@@ -89,14 +87,11 @@ async def start_measurement(duration):
         print("not successful")
 
 
-#GPIO.add_event_detect(btn_pin, GPIO.RISING, callback=btn_callback, bouncetime=300)
-
+GPIO.add_event_detect(btn_pin, GPIO.FALLING, callback=btn_callback, bouncetime=2000)
 
 
 if __name__ == "__main__":
 
     while True:
-
-        if GPIO.event_detected(btn_pin, GPIO.FALLING, bouncetime=300):
-            print('Button pressed')
-            asyncio.run(start_measurement(5))
+        sleep(1)
+        print("Awaiting command..")
