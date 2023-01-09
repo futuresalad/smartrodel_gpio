@@ -28,6 +28,8 @@ class BLE():
 
         self.led_r = LED(25)
         self.led_g = LED(24)
+        self.led_r.off()
+        self.led_g.off()
 
     def bt_callback(self, sender: int, data: bytearray):
         # Decode data from bytearrays to strings and split them at the "," delimiter
