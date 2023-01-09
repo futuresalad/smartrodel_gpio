@@ -22,12 +22,6 @@ led_pin = 16
 GPIO.setup(25, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 btn_pin = 25
 
-for i in range(5):
-    GPIO.output(led_pin, GPIO.HIGH)
-    sleep(.1)
-    GPIO.output(led_pin, GPIO.LOW)
-    sleep(.1)
-
 def callback(ev=None):
 
     for i in range(5):
@@ -41,8 +35,6 @@ def callback(ev=None):
     GPIO.output(led_pin, GPIO.HIGH if led_on else GPIO.LOW)
     asyncio.run(start_measurement())
 
-ESP32_1 = bt_daq(mac)
-GPIO.add_event_detect(btn_pin, GPIO.RISING, callback=callback, bouncetime=300)
 
 async def start_measurement():
             success = await ESP32_1.get_data(2)
@@ -66,6 +58,11 @@ async def start_measurement():
                     GPIO.output(led_pin, GPIO.LOW)
                     sleep(1)
 
-while True:
-    sleep(5)
-    print("Awaiting Start..")
+ESP32_1 = bt_daq(mac)
+GPIO.add_event_detect(btn_pin, GPIO.RISING, callback=callback, bouncetime=300)
+
+if __name__ == "__main__":
+
+    while True:
+        sleep(5)
+        print("Awaiting Start..")
