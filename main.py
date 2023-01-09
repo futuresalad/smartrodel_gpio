@@ -35,11 +35,18 @@ led_pin = 16
 # Button
 GPIO.setup(25, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 btn_pin = 25
+button_pressed = False
 
 def btn_callback(ev=None):
 
-    GPIO.output(led_pin, GPIO.HIGH if led_on else GPIO.LOW)
-    asyncio.run(start_measurement())
+    global button_pressed
+
+    if button_pressed:
+        asyncio.run(start_measurement(5))
+        button_pressed = False
+
+    else:
+        button_pressed = False
 
 def bt_callback(sender: int, data: bytearray):
     # Decode data from bytearrays to strings and split them at the "," delimiter
@@ -56,7 +63,6 @@ def bt_callback(sender: int, data: bytearray):
 def export_data():
         print("Exporting CSV")
         dataframe.to_csv(path_or_buf=f"./data_export/data_{datetime.datetime.now().isoformat()}.csv", sep=',', index_label="Index", na_rep='NaN')
-
 
 async def start_measurement(duration):
 
@@ -90,10 +96,11 @@ async def start_measurement(duration):
         print("not successful")
 
 
-GPIO.add_event_detect(btn_pin, GPIO.RISING, callback=btn_callback, bouncetime=300)
+if GPIO.add_event_detect(btn_pin, GPIO.RISING, callback=btn_callback, bouncetime=300):
+    button_pressed = True
 
 if __name__ == "__main__":
 
     while True:
-        sleep(5)
+        sleep(1)
         print("Awaiting Start..")
