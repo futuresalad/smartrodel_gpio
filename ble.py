@@ -41,7 +41,6 @@ class bt_daq():
 
     async def send_start_command(self):
         await self.client.start_notify(self.RX_UUID, self.callback)
-        await self.client.write_gatt_char(self.TX_UUID, self.txOn)
         return True
 
     async def send_stop_command(self):

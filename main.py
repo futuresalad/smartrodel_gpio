@@ -1,13 +1,27 @@
 import RPi.GPIO as GPIO
 from time import sleep
-from ble import bt_daq
+import asyncio
+from bleak import BleakClient
+import pandas as pd
+import numpy as np
+import datetime
 import asyncio
 
 # BLE Device constants
 mac = "24:0A:C4:62:52:FE" #dev nxn
+RX_UUID = "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+TX_UUID = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
 
 # BLE status
 connected = False
+
+# Commands
+txOn = bytearray("on",'utf-8')
+txOff = bytearray("off",'utf-8')
+
+# Dataframe to save measurements
+rec = np.zeros([1,5])
+dataframe = pd.DataFrame(rec, columns=['time', 'vl', 'vr', 'hl', 'hr'])
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
@@ -22,44 +36,61 @@ led_pin = 16
 GPIO.setup(25, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 btn_pin = 25
 
-def callback(ev=None):
+def btn_callback(ev=None):
 
-    for i in range(5):
-        GPIO.output(led_pin, GPIO.HIGH)
-        sleep(.1)
-        GPIO.output(led_pin, GPIO.LOW)
-        sleep(.1)
-
-    global led_on
-    led_on = not led_on
     GPIO.output(led_pin, GPIO.HIGH if led_on else GPIO.LOW)
     asyncio.run(start_measurement())
 
+def bt_callback(sender: int, data: bytearray):
+    # Decode data from bytearrays to strings and split them at the "," delimiter
+    rec = data.decode("utf-8").split(",")
+    print(rec)
+    # Convert every element of the row into an integer
+    for idx, element in enumerate(rec):
+        rec[idx] = int(element)
 
-async def start_measurement():
-            success = await ESP32_1.get_data(30)
+    # Add that array as a row to the dataframe
+    dataframe.loc[len(dataframe)] = rec
 
-            if success:
-                ESP32_1.export_data()
 
-                for i in range(5):
-                    GPIO.output(led_pin, GPIO.HIGH)
-                    sleep(.5)
-                    GPIO.output(led_pin, GPIO.LOW)
-                    sleep(.1)
+def export_data():
+        print("Exporting CSV")
+        dataframe.to_csv(path_or_buf=f"./data_export/data_{datetime.datetime.now().isoformat()}.csv", sep=',', index_label="Index", na_rep='NaN')
 
+
+async def start_measurement(duration):
+
+    rec = np.zeros([1,5])
+    dataframe = pd.DataFrame(rec, columns=['time', 'vl', 'vr', 'hl', 'hr'])
+
+    try:
+        async with BleakClient(mac) as client:
+                
+            if client.is_connected:
+                    await client.start_notify(RX_UUID, bt_callback)
+                
+                    await client.write_gatt_char(TX_UUID, bytearray(str(duration),'utf-8'))
+                    await client.write_gatt_char(TX_UUID, txOn)
+                    sleep(duration)
+                    await client.write_gatt_char(TX_UUID, txOff)
+                    success = True
             else:
-                print("not successful")
+                print(f'BT Device with MAC {mac} not found')    
 
-                for i in range(3):
+    except Exception as e:
 
-                    GPIO.output(led_pin, GPIO.HIGH)
-                    sleep(1)
-                    GPIO.output(led_pin, GPIO.LOW)
-                    sleep(1)
+        print(e)
+        success = False
+                   
+    if success:
+        export_data()
+        print("Success!")
 
-ESP32_1 = bt_daq(mac)
-GPIO.add_event_detect(btn_pin, GPIO.RISING, callback=callback, bouncetime=300)
+    else:
+        print("not successful")
+
+
+GPIO.add_event_detect(btn_pin, GPIO.RISING, callback=btn_callback, bouncetime=300)
 
 if __name__ == "__main__":
 
