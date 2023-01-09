@@ -71,6 +71,7 @@ async def start_measurement(duration):
                     sleep(duration)
                     await client.write_gatt_char(TX_UUID, txOff)
                     client.disconnect()
+                    print(f"Client connected: {client.is_connected()}")
                     success = True
                     
             else:
