@@ -1,4 +1,5 @@
-import RPi.GPIO as GPIO
+from gpiozero import LED, Button
+
 from time import sleep
 import asyncio
 from bleak import BleakClient
@@ -23,21 +24,16 @@ txOff = bytearray("off",'utf-8')
 rec = np.zeros([1,5])
 dataframe = pd.DataFrame(rec, columns=['time', 'vl', 'vr', 'hl', 'hr'])
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
 
 # LED Output pin
-GPIO.setup(16, GPIO.OUT, initial=GPIO.LOW)
+led = LED(16)
 
 # Initial state
 led_on = False
-led_pin = 16
-# Button
-GPIO.setup(25, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-btn_pin = 25
 
-def btn_callback(ev=None):
-    asyncio.run(start_measurement(5))
+# Button
+btn = Button(25, pull_up=True)
+
 
 def bt_callback(sender: int, data: bytearray):
     # Decode data from bytearrays to strings and split them at the "," delimiter
@@ -64,6 +60,7 @@ async def start_measurement(duration):
         async with BleakClient(mac) as client:
                 
             if client.is_connected:
+                    led.on()
                     await client.start_notify(RX_UUID, bt_callback)
                 
                     await client.write_gatt_char(TX_UUID, bytearray(str(duration),'utf-8'))
@@ -73,6 +70,7 @@ async def start_measurement(duration):
                     client.disconnect()
                     print(f"Client connected: {client.is_connected()}")
                     success = True
+                    led.off()
                     
             else:
                 print(f'BT Device with MAC {mac} not found')    
@@ -90,8 +88,7 @@ async def start_measurement(duration):
         print("not successful")
 
 
-GPIO.add_event_detect(btn_pin, GPIO.FALLING, callback=asyncio.run(start_measurement(5)), bouncetime=2000)
-
+btn.when_pressed = asyncio.run(start_measurement(5))
 
 if __name__ == "__main__":
 
