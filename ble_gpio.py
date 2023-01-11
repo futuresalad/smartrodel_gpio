@@ -28,8 +28,8 @@ class BLE():
 
         self.led_r = LED(25)
         self.led_g = LED(24)
-        self.led_r.off()
-        self.led_g.off()
+        self.led_r.on()
+        self.led_g.on()
 
     def bt_callback(self, sender: int, data: bytearray):
         # Decode data from bytearrays to strings and split them at the "," delimiter
@@ -45,7 +45,7 @@ class BLE():
 
     def export_data(self):
             print("Exporting CSV")
-            self.dataframe.to_csv(path_or_buf=f"./data_export/data_{datetime.datetime.now().isoformat()}.csv", sep=',', index_label="Index", na_rep='NaN')
+            self.dataframe.to_csv(path_or_buf=f"./data_export/data_{datetime.datetime.now().isoformat()}.csv", sep=',', index_label=None, na_rep='NaN')
 
     async def start_measurement(self, duration):
 
