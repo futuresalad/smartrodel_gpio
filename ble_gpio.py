@@ -11,7 +11,8 @@ class BLE():
     def __init__(self):
          
         # BLE Device constants
-        self.mac = "24:0A:C4:62:52:FE" #dev nxn
+        #self.mac = "24:0A:C4:62:52:FE" #dev nxn
+        self.mac = '94:B9:7E:DA:4A:D6' #Rodel
         self.RX_UUID = "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
         self.TX_UUID = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
 
