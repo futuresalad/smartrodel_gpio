@@ -1,6 +1,11 @@
 import time
-import Adafruit_MCP3008 as MCP
-import Adafruit_GPIO.SPI as SPI
+import numpy as np
+import spidev
+import RPi.GPIO as GPIO
+
+CS_ADC = 12
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(CS_ADC, GPIO.OUT)
 
 # MCP3008 Pinout
 # CH0 -|1 * 16|- VDD
@@ -8,7 +13,7 @@ import Adafruit_GPIO.SPI as SPI
 # CH2 -|3   14|- AGND
 # CH3 -|4   13|- CLK
 # CH4 -|5   12|- Dout
-# CH5 -|6   11|- Din_
+# CH5 -|6   11|- Din
 # CH6 -|7   10|- CS
 # CH7 -|8 __ 9|- DGND
 
@@ -23,21 +28,16 @@ import Adafruit_GPIO.SPI as SPI
 
 class ADC():
     def __init__(self):
-
-        # Hardware SPI configuration:
-        SPI_PORT = 0
-        SPI_DEVICE = 0
-        self.mcp = MCP.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
-
-    def read(self):
-
-        values = []
-
-        # Read values of 8 channels
-        for pin in range(8):
-            values[pin] = self.mcp.read_adc(pin)
         
-        return values
+        self.spi = spidev.SpiDev()
+        self.spi.open(0,0)
+        self.spi.max_speed_hz=1000000
+
+    def read(self, channel):
+
+        adc = self.spi.xfer2([1, (8+channel)<<4, 0]) # 00000001, 1xxx0000, 00000000, xxx is the channel id
+        data = ((adc[1]&3) << 8) + adc[2]
+        return data
 
 adc = ADC()
 
@@ -46,5 +46,7 @@ if __name__ == "__main__":
     print("reading for 10 seconds")
     
     for reading in range(100):
-        print(adc.read())
+        GPIO.output(CS_ADC, GPIO.LOW)
+        print(adc.read(0))
+        GPIO.output(CS_ADC, GPIO.HIGH)
         time.sleep(0.1)
