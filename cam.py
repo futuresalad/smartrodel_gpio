@@ -10,7 +10,7 @@ class Cam():
         width = int(self.cap.get(cv.CAP_PROP_FRAME_WIDTH))
         height = int(self.cap.get(cv.CAP_PROP_FRAME_HEIGHT))
         fourcc = cv.VideoWriter_fourcc('m', 'p', '4', 'v')
-        self.writer = cv.VideoWriter('testvid.mp4', fourcc, 30, (width, height))
+        self.writer = cv.VideoWriter('messdaten/video/testvid.mp4', fourcc, 30, (width, height))
 
         if not self.cap.isOpened():
             print("Cannot open camera")
