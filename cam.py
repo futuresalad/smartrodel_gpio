@@ -2,7 +2,7 @@ import time
 import numpy as np
 import cv2 as cv
 import threading
-import tqdm
+from tqdm import tqdm
 
 
 def progress(duration_s):
