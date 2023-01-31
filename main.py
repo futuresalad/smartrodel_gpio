@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import threading
 import smbus
 import numpy as np
 import spidev
@@ -27,7 +28,8 @@ class IMU():
         address = 0x68
         bus = smbus.SMBus(1)
         self.imu = MPU9250.MPU9250(bus, address)
-        
+        imu.begin()
+
 class ADC():
     def __init__(self):
         
@@ -41,15 +43,7 @@ class ADC():
         data = ((adc[1]&3) << 8) + adc[2]
         return data
 
-cam = CAM()
-
-if not cam.cap.isOpened():
-    print("Cannot open camera")
-    exit()
-
-sensor = IMU()
-sensor.imu.begin()
-
+imu = IMU()
 adc = ADC()
 
 delay = 2 * 1_000_000 
