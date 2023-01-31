@@ -2,6 +2,12 @@ import time
 import numpy as np
 import cv2 as cv
 import threading
+import tqdm
+
+
+def progress(duration_s):
+    for s in tqdm(range(duration_s)):
+        time.sleep(1)
 
 class Cam():
     def __init__(self):
@@ -33,11 +39,13 @@ class Cam():
 
 
 if __name__ == "__main__":
-
+    duration = 20
     cam = Cam()
-
-    cam_thread = threading.Thread(target=cam.record, args=(20,))
+    prog_thread = threading.Thread(target=progress, args=(duration,))
+    cam_thread = threading.Thread(target=cam.record, args=(duration,))
     cam_thread.start()
+    prog_thread.start()
     print("Waiting record to finish")
     cam_thread.join()
+    prog_thread.join()
     print("Recording finished")
