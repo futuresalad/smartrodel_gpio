@@ -12,12 +12,12 @@ from imu import Imu
 
 def readSensors(duration_s):
 
-    delay_ns = 2*int(1e6)
+    delay_ns = 20 * 1_000_000
     readcount = 0
     now = time.time_ns()
     starttime = now
     lastread = now
-    duration_ns = duration_s * int(1e6)
+    duration_ns = duration_s * int(1e9)
     imu_vals = []
 
     while (time.time_ns() < (now + duration_ns)):
@@ -28,7 +28,7 @@ def readSensors(duration_s):
             sensor.imu.readSensor()
             sensor.imu.computeOrientation()
             adc_val = np.zeros(8)
-            imu_vals.append(sensor.imu.GyroVals[0], sensor.imu.GyroVals[1], sensor.imu.GyroVals[2])
+            imu_vals.append([sensor.imu.GyroVals[0], sensor.imu.GyroVals[1], sensor.imu.GyroVals[2]])
             readcount = readcount+1
             
             for channel in range(8):
@@ -56,7 +56,7 @@ sensor_thread = threading.Thread(target=readSensors, args=(duration,))
 if __name__ == "__main__":
     
     print("Starting threads")
-    
+
     cam_thread.start()
     sensor_thread.start()
     prog_thread.start()
