@@ -6,7 +6,6 @@ width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
 height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
 fourcc = cv.VideoWriter_fourcc('m', 'p', '4', 'v')
 writer = cv.VideoWriter('testvid.mp4', fourcc, 30, (width, height))
-
 if not cap.isOpened():
     print("Cannot open camera")
     exit()
