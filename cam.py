@@ -6,8 +6,8 @@ from tqdm import tqdm
 
 
 def progress(duration_s):
-    for s in tqdm(range(duration_s)):
-        time.sleep(1)
+    for s in tqdm(range(duration_s*5)):
+        time.sleep(0.2)
 
 class Cam():
     def __init__(self):

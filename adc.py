@@ -26,7 +26,7 @@ GPIO.setup(CS_ADC, GPIO.OUT)
 # CLK -> GPIO11 (Pin 23)
 
 
-class ADC():
+class Adc():
     def __init__(self):
         
         self.spi = spidev.SpiDev()
@@ -39,7 +39,7 @@ class ADC():
         data = ((adc[1]&3) << 8) + adc[2]
         return data
 
-adc = ADC()
+adc = Adc()
 
 if __name__ == "__main__":
 
