@@ -7,8 +7,7 @@ import spidev
 import cv2 as cv
 import RPi.GPIO as GPIO
 from cam import Cam, progress
-from adc import Adc
-from imu import Imu
+from sensors import Adc, Imu
 
 def readSensors(duration_s):
 
