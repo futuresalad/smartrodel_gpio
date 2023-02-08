@@ -5,66 +5,71 @@ import threading
 import numpy as np
 import spidev
 import cv2 as cv
-import RPi.GPIO as GPIO
-from cam import Cam, progress
+from gpiozero import Button, DigitalOutputDevice
+from cam import Cam
 from sensors import Adc, Imu
+from display import Display
+import concurrent.futures
 
-def readSensors(duration_s):
-
-    delay_ns = 20 * 1_000_000
-    readcount = 0
-    now = time.time_ns()
-    starttime = now
-    lastread = now
-    duration_ns = duration_s * int(1e9)
-    imu_vals = []
-
-    while (time.time_ns() < (now + duration_ns)):
-
-        if ((time.time_ns()) - lastread) > delay_ns:
-        
-            lastread = time.time_ns()
-            sensor.imu.readSensor()
-            sensor.imu.computeOrientation()
-            adc_val = np.zeros(8)
-            imu_vals.append([sensor.imu.GyroVals[0], sensor.imu.GyroVals[1], sensor.imu.GyroVals[2]])
-            readcount = readcount+1
-            
-            for channel in range(8):
-                adc_val[channel] = adc.read(channel)
-    
-    print(readcount)
-
-
-# GPIO setup
-CS_ADC = 12
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(CS_ADC, GPIO.OUT)
-
-sensor = Imu()
-adc = Adc()
+# Setting up peripheral objects
+display = Display()
 cam = Cam()
+adc = Adc(12)
 
-duration = 20
+# Initializing recording time variable
+rec_time = 12
+rec_started = False
 
-prog_thread = threading.Thread(target=progress, args=(duration,))
-cam_thread = threading.Thread(target=cam.record, args=(duration,))
-sensor_thread = threading.Thread(target=readSensors, args=(duration,))
+def start_record(rec_time):
 
+        
 
-if __name__ == "__main__":
-    
-    print("Starting threads")
+        for t in range(3):
+                display.splash_image(0.7, 3-t)
+        display.splash_image(0,0)
 
-    cam_thread.start()
-    sensor_thread.start()
-    prog_thread.start()
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future_sensor = executor.submit(adc.cont_read, rec_time, 1)
+            future_cam = executor.submit(cam.record, rec_time)
 
-    print("Waiting to finish threads")
-    
-    cam_thread.join()
-    sensor_thread.join()
-    prog_thread.join()
+            print("Recording started")
+            print("Waiting to finish threads")
 
-    print("All threads finished")
+            concurrent.futures.wait([future_cam, future_sensor], return_when=concurrent.futures.ALL_COMPLETED)
 
+            print("All threads finished")
+
+            rec_started = False
+        
+        display.splash_image(0,5)
+
+# Button callback functions
+def btn1_callback():
+        global rec_time
+        start_record(rec_time)
+        
+
+def btn2_callback():
+        pass        
+
+def btn3_callback():
+        pass
+
+# Raspberry GPIO config
+BTN_1 = 14
+BTN_2 = 15
+BTN_3 = 18
+
+BTN_1 = Button(14, pull_up=True)
+BTN_2 = Button(15, pull_up=True)
+BTN_3 = Button(18, pull_up=True)
+
+BTN_1.when_pressed = btn1_callback
+BTN_2.when_pressed = btn2_callback
+BTN_3.when_pressed = btn3_callback
+
+display.splash_image(1,6)
+display.splash_image(1,5)
+
+while True:
+        pass

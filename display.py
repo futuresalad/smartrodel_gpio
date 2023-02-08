@@ -83,13 +83,26 @@ class Display():
         self.disp.image(self.image)
         self.disp.display()
 
-    def splash_screen(self):
+    def splash_image(self, duration, id):
         # Load splash screen
-        splash = Image.open('splash.jpg').convert('1')
+        splash = Image.open(f'res/{id}.jpg').convert('1')
 
         # Display image.
         self.disp.image(splash)
         self.disp.display()
+        time.sleep(duration)
+    
+    def countdown(self):
+        for t in range(3):
+            img = Image.open(f'res/{3-t}.jpg').convert('1')
+            self.disp.image(img)
+            self.disp.display()
+            time.sleep(1)
+
+        img = Image.open(f'res/0.jpg').convert('1')
+        self.disp.image(img)
+        self.disp.display()
+            
 
     def sensor_screen(self, sensor_id, values):
         
@@ -108,7 +121,7 @@ class Display():
 
             row_space = 12
 
-            values = [25, 97, 12, 44]
+            #values = [25, 97, 12, 44]
             labels = ['vl','vr','hl','hr']
 
             for i, v in enumerate(values):
@@ -173,8 +186,8 @@ if __name__ == "__main__":
     display = Display()
 
     while True:
-        display.splash_screen()
-        time.sleep(1)
+        display.splash_image(1, 6)
+    
 
         display.main_menu(selected_row=0)
         time.sleep(1)
@@ -193,7 +206,7 @@ if __name__ == "__main__":
             time.sleep(1)
 
         display.main_menu(selected_row=2)
-        time.sleep(0.5)
+        time.sleep(1)
         
         for t in range(50,56):
 
