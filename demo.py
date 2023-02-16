@@ -7,7 +7,6 @@ import spidev
 import cv2 as cv
 import RPi.GPIO as GPIO
 from cam import Cam, progress
-from sensors import Adc, Imu
 
 def readSensors(duration_s):
 
@@ -27,7 +26,7 @@ def readSensors(duration_s):
             sensor.imu.readSensor()
             sensor.imu.computeOrientation()
             adc_val = np.zeros(8)
-            imu_vals.append([sensor.imu.GyroVals[0], sensor.imu.GyroVals[1], sensor.imu.GyroVals[2]])
+            imu_vals.append([self.imu.GyroVals[0]self.imu.GyroVals[0]])
             readcount = readcount+1
             
             for channel in range(8):
