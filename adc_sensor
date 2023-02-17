@@ -1,0 +1,82 @@
+# MCP3008 Pinout
+# CH0 -|1 * 16|- VDD
+# CH1 -|2   15|- Vref
+# CH2 -|3   14|- AGND
+# CH3 -|4   13|- CLK
+# CH4 -|5   12|- Dout
+# CH5 -|6   11|- Din
+# CH6 -|7   10|- CS
+# CH7 -|8 __ 9|- DGND
+
+# Raspberry Pi Pinout
+# CS -> GPIO25 (Pin 22)
+# VDD -> VREF 3.3V (Pin 17)
+# AGND, DGND -> GND (Pin 25, 20)
+# MOSI -> GPIO10 (Pin 19)
+# MISO -> GPIO9 (Pin 21)
+# CLK -> GPIO11 (Pin 23)
+class Adc():
+    def __init__(self, pin):
+        
+        self.spi = spidev.SpiDev()
+        self.spi.open(0,0)
+        self.spi.max_speed_hz=10000000
+        self.CS_ADC = DigitalOutputDevice(pin, active_high=False, initial_value=True)
+        self.filename = 'messdaten/csv/readings.csv'
+
+    def read(self, channel):
+
+        adc = self.spi.xfer2([1, (8+channel)<<4, 0]) # 00000001, 1xxx0000, 00000000, xxx is the channel id
+        data = ((adc[1]&3) << 8) + adc[2]
+        return data
+
+    def cont_read(self, duration_s, num_channels):
+        
+        # waiting for all threads to be set up
+        print("ADC sensor started")
+
+        df = pd.DataFrame(columns=['time', 'vl', 'vr', 'hl', 'hr'])
+        
+        sample_rate = 100
+        sample_period = 1/sample_rate
+        start_time = time.time()
+        current_time = start_time
+        last_reading = sample_period
+        elapsed_time = 0
+        data = []
+        self.CS_ADC.on()
+        
+        while (time.time() < (start_time + duration_s)):
+        
+
+            current_time = time.time()
+            elapsed_time = current_time - last_reading
+
+            try:
+                if (elapsed_time >= sample_period):
+
+                    sample = np.zeros(num_channels+1)
+                    sample[0] = current_time - start_time
+                    
+
+                    tick = time.time()
+                    for channel in range(num_channels):
+                        
+                        sample[channel+1] = self.read(channel)
+                        last_reading = time.time()
+                
+                    #print(f'duration: {tock - tick}')
+                    
+                    data.append(sample)
+
+            except Exception as e:
+                print(e)
+        
+        self.CS_ADC.off()
+
+        try:
+            data_df = pd.DataFrame(data, columns=['time','vl','vr','hl','hr'])
+            data_df.to_csv(self.filename, sep=',' , index=None)
+
+        except Exception as e:
+                print(e)
