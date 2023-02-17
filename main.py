@@ -7,17 +7,17 @@ import spidev
 import cv2 as cv
 from gpiozero import Button, DigitalOutputDevice
 from cam import Cam
-from sensors import Adc, Imu
+from sensors import Imu
 #from display import Display
 import concurrent.futures
 
 # Setting up peripheral objects
 #display = Display()
 cam = Cam()
-adc = Adc(12)
+#adc = Adc(12)
 imu = Imu(0x68)
 # Initializing recording time variable
-rec_time = 10
+rec_time = 60
 rec_started = False
 
 def start_record(rec_time):
@@ -36,6 +36,8 @@ def start_record(rec_time):
             print("Waiting to finish threads")
 
             concurrent.futures.wait([future_sensor, future_cam], return_when=concurrent.futures.ALL_COMPLETED)
+            #concurrent.futures.wait([future_sensor], return_when=concurrent.futures.ALL_COMPLETED)
+        
         
             print("All threads finished")
 
