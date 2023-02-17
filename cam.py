@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import time
 import numpy as np
 import cv2 as cv
@@ -18,7 +20,7 @@ class Cam():
     def record(self, duration_s):
         
         # waiting for all threads to be set up
-        writer = cv.VideoWriter('messdaten/video/success.mp4', self.fourcc, 25, (self.width, self.height))
+        writer = cv.VideoWriter('messdaten/video/success.mp4', self.fourcc, 30, (self.width, self.height))
         print("Camera started")
         now = time.time() 
         #successful_frame = np.zeros(self.height, self.width) 

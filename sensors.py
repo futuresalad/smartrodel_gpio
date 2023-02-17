@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from mpu6050 import mpu6050
 import time
 import numpy as np
@@ -8,22 +10,39 @@ import pandas as pd
 class Imu():
     def __init__(self, address):
         
+        # IMU config
         self.address = address
         self.sensor = mpu6050(self.address)
         self.filename = "messdaten/csv/imu_data.csv"
 
+        # SPI ADC config
+        self.spi = spidev.SpiDev()
+        self.spi.open(0,0)
+        self.spi.max_speed_hz=1000000
+        self.CS_ADC = DigitalOutputDevice(12, active_high=False, initial_value=False)
+        self.num_channels = 4
+
+    def adc_read(self, buffer):
+
+
+        for channel in range(self.num_channels):
+            self.CS_ADC.on()
+            adc = self.spi.xfer2([1,(8+channel)<<4,0])
+            buffer[channel] = ((((adc[1]&3) << 8) + adc[2]))
+            self.CS_ADC.off()
+
+        return buffer
 
     def cont_read(self, duration):
 
-        print("IMU sensor started")
-        data_df = pd.DataFrame(columns=['time','gyr_x','gyr_y','gyr_z','acc_x','acc_y','acc_z'])
+        print("Sensors started")
         data = []
-        samplerate = 60
+        dist_data = np.zeros(4)
+        samplerate = 100
         sampletime = 1/samplerate
         start = time.time()
         lastread = 0
         dt = 0
-        duration = 60
 
         tick = time.time()
 
@@ -36,18 +55,23 @@ class Imu():
                 lastread = time.time() - start
                 
                 try:
-                    data1 = self.sensor.get_gyro_data()
-                    data2 = self.sensor.get_accel_data()
-
+                    tick = time.time()
+                    imu_data1 = self.sensor.get_gyro_data()
+                    imu_data2 = self.sensor.get_accel_data()
+                    dist_data = self.adc_read(dist_data)
+                    #print(time.time()-tick)
+                
                 except Exception as e:
                     print(e)
                 
                 finally:
-                    data.append([lastread,data1['x'],data1['y'],data1['z'],data2['x'],data2['y'],data2['z']])
-
+                    try:
+                        data.append([lastread, dist_data[0], dist_data[1], dist_data[2], dist_data[3], imu_data1['x'], imu_data1['y'], imu_data1['z'],imu_data2['x'],imu_data2['y'],imu_data2['z']])
+                    except Exception as e:
+                        print(e)
         try:
             print("Creating dataframe")
-            data_df = pd.DataFrame(data, columns=['time','gyr_x','gyr_y','gyr_z','acc_x','acc_y','acc_z'])
+            data_df = pd.DataFrame(data, columns=['time','vl','vr','hl','hr','gyr_x','gyr_y','gyr_z','acc_x','acc_y','acc_z'])
             print("Writing to CSV")
             data_df.to_csv(self.filename, sep=',' , index=None)
             print("CSV finished")

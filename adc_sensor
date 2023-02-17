@@ -15,6 +15,7 @@
 # MOSI -> GPIO10 (Pin 19)
 # MISO -> GPIO9 (Pin 21)
 # CLK -> GPIO11 (Pin 23)
+
 class Adc():
     def __init__(self, pin):
         
