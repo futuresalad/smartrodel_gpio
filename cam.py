@@ -17,10 +17,10 @@ class Cam():
             print("Cannot open camera")
             exit()
 
-    def record(self, duration_s):
+    def record(self, duration_s, rec_number):
         
         # waiting for all threads to be set up
-        writer = cv.VideoWriter('messdaten/video/success.mp4', self.fourcc, 30, (self.width, self.height))
+        writer = cv.VideoWriter(f'/home/pi/smartrodel_gpio/messdaten/video/video_{rec_number}.mp4', self.fourcc, 30, (self.width, self.height))
         print("Camera started")
         now = time.time() 
         #successful_frame = np.zeros(self.height, self.width) 

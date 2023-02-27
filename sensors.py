@@ -13,7 +13,6 @@ class Imu():
         # IMU config
         self.address = address
         self.sensor = mpu6050(self.address)
-        self.filename = "messdaten/csv/imu_data.csv"
 
         # SPI ADC config
         self.spi = spidev.SpiDev()
@@ -33,7 +32,7 @@ class Imu():
 
         return buffer
 
-    def cont_read(self, duration):
+    def cont_read(self, duration, rec_number):
 
         print("Sensors started")
         data = []
@@ -73,7 +72,10 @@ class Imu():
             print("Creating dataframe")
             data_df = pd.DataFrame(data, columns=['time','vl','vr','hl','hr','gyr_x','gyr_y','gyr_z','acc_x','acc_y','acc_z'])
             print("Writing to CSV")
-            data_df.to_csv(self.filename, sep=',' , index=None)
+
+
+            filename = f"~/smartrodel_gpio/messdaten/csv/sensor_data_{rec_number}.csv"
+            data_df.to_csv(filename, sep=',' , index=None)
             print("CSV finished")
 
         except Exception as e:
